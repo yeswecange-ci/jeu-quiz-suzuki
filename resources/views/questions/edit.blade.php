@@ -153,6 +153,45 @@
                     </div>
                 </div>
 
+                <!-- Période d'activité -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Période d'Activité (optionnel)</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Définissez une période pour que cette question soit active uniquement pendant certaines dates (ex: semaine 1, semaine 2, etc.).
+                        Si laissé vide, la question sera active en permanence.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de Début
+                            </label>
+                            <input type="datetime-local"
+                                   name="start_date"
+                                   id="start_date"
+                                   value="{{ old('start_date', $question->start_date ? $question->start_date->format('Y-m-d\TH:i') : '') }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('start_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de Fin
+                            </label>
+                            <input type="datetime-local"
+                                   name="end_date"
+                                   id="end_date"
+                                   value="{{ old('end_date', $question->end_date ? $question->end_date->format('Y-m-d\TH:i') : '') }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('end_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Statut -->
                 <div>
                     <label class="flex items-center">

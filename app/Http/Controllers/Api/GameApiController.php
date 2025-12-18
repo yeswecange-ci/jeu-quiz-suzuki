@@ -193,8 +193,9 @@ class GameApiController extends Controller
     {
         $contest = Contest::findOrFail($contestId);
 
+        // Récupérer les questions actives à la date actuelle
         $questions = $contest->questions()
-            ->where('is_active', true)
+            ->activeAt(now())
             ->get()
             ->map(function ($question) {
                 return [

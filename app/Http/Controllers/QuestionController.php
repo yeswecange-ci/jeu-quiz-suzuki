@@ -43,6 +43,8 @@ class QuestionController extends Controller
             'type' => 'required|in:quiz,marketing',
             'order' => 'required|integer|min:1',
             'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $options = [
@@ -59,6 +61,8 @@ class QuestionController extends Controller
             'type' => $validated['type'],
             'order' => $validated['order'],
             'is_active' => $validated['is_active'] ?? true,
+            'start_date' => $validated['start_date'] ?? null,
+            'end_date' => $validated['end_date'] ?? null,
         ]);
 
         return redirect()->route('contests.questions.index', $contest)
@@ -99,6 +103,8 @@ class QuestionController extends Controller
             'type' => 'required|in:quiz,marketing',
             'order' => 'required|integer|min:1',
             'is_active' => 'boolean',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $options = [
@@ -115,6 +121,8 @@ class QuestionController extends Controller
             'type' => $validated['type'],
             'order' => $validated['order'],
             'is_active' => $validated['is_active'] ?? true,
+            'start_date' => $validated['start_date'] ?? null,
+            'end_date' => $validated['end_date'] ?? null,
         ]);
 
         return redirect()->route('contests.questions.index', $contest)
