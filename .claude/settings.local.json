@@ -5,7 +5,10 @@
       "Bash(npm run build:*)",
       "Bash(php artisan migrate:*)",
       "Bash(php artisan migrate:fresh:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(php artisan serve:*)",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)"
     ],
     "deny": [],
     "ask": []
