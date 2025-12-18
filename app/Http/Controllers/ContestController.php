@@ -68,7 +68,7 @@ class ContestController extends Controller
             'total_participants' => $contest->participants()->count(),
             'total_responses' => $contest->responses()->count(),
             'completion_rate' => $this->calculateCompletionRate($contest),
-            'average_score' => $contest->responses()->avg('points_earned'),
+            'average_score' => $this->calculateAverageScore($contest),
         ];
 
         // Obtenir toutes les semaines du concours
@@ -243,5 +243,23 @@ class ContestController extends Controller
         })->count();
 
         return round(($completedCount / $participants->count()) * 100, 2);
+    }
+
+    /**
+     * Calculer le score moyen par participant (pas par réponse)
+     */
+    private function calculateAverageScore(Contest $contest): float
+    {
+        $participants = $contest->participants()->get();
+
+        if ($participants->isEmpty()) {
+            return 0;
+        }
+
+        $totalScore = $participants->sum(function ($participant) use ($contest) {
+            return $contest->getParticipantScore($participant->id);
+        });
+
+        return round($totalScore / $participants->count(), 2);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContestController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('contests.select-winners');
     Route::post('/contests/{contest}/notify-winners', [ContestController::class, 'notifyWinners'])
         ->name('contests.notify-winners');
+
+    // Gestion des participants
+    Route::resource('participants', ParticipantController::class)->except(['create', 'store']);
 
     // Gestion des questions (nested resource)
     Route::resource('contests.questions', QuestionController::class);

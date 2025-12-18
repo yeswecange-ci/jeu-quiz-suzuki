@@ -25,6 +25,7 @@ class GameApiController extends Controller
             'question_id' => 'required|exists:questions,id',
             'answer' => 'required|integer|min:1|max:3',
             'conversation_sid' => 'nullable|string',
+            'profile_name' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -54,10 +55,22 @@ class GameApiController extends Controller
                 ->firstOrFail();
 
             // Créer ou récupérer le participant
+            $participantData = ['conversation_sid' => $request->conversation_sid];
+
+            // Ajouter le profile_name s'il est fourni
+            if ($request->filled('profile_name')) {
+                $participantData['profile_name'] = $request->profile_name;
+            }
+
             $participant = Participant::findOrCreateByWhatsApp(
                 $request->whatsapp_number,
-                ['conversation_sid' => $request->conversation_sid]
+                $participantData
             );
+
+            // Mettre à jour le profile_name si déjà existant et nouveau profile_name fourni
+            if ($request->filled('profile_name') && $participant->profile_name !== $request->profile_name) {
+                $participant->update(['profile_name' => $request->profile_name]);
+            }
 
             // Enregistrer la réponse
             $response = Response::recordAnswer(

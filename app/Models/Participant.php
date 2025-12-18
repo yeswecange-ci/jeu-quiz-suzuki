@@ -13,6 +13,7 @@ class Participant extends Model
     protected $fillable = [
         'whatsapp_number',
         'name',
+        'profile_name',
         'conversation_sid',
         'metadata',
     ];
