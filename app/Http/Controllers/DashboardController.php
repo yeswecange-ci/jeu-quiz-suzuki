@@ -24,10 +24,15 @@ class DashboardController extends Controller
         ];
 
         // Concours récents
-        $recentContests = Contest::withCount(['questions', 'participants', 'responses'])
+        $recentContests = Contest::withCount(['questions', 'responses'])
             ->latest()
             ->take(5)
             ->get();
+
+        // Ajouter le count correct des participants pour chaque concours
+        $recentContests->each(function ($contest) {
+            $contest->unique_participants_count = $contest->countUniqueParticipants();
+        });
 
         // Derniers participants
         $recentParticipants = Participant::with('responses')

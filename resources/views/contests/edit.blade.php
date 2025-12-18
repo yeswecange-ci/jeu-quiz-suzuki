@@ -93,33 +93,65 @@
                 </div>
 
                 <!-- Dates -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            Date de Début
-                        </label>
-                        <input type="datetime-local"
-                               name="start_date"
-                               id="start_date"
-                               value="{{ old('start_date', $contest->start_date?->format('Y-m-d\TH:i')) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('start_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Durée du Concours
+                    </label>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button type="button" onclick="setDuration(7)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            1 Semaine
+                        </button>
+                        <button type="button" onclick="setDuration(14)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            2 Semaines
+                        </button>
+                        <button type="button" onclick="setDuration(21)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            3 Semaines
+                        </button>
+                        <button type="button" onclick="setDuration(30)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            1 Mois
+                        </button>
+                        <button type="button" onclick="setDuration(60)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            2 Mois
+                        </button>
+                        <button type="button" onclick="setDuration(90)" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                            3 Mois
+                        </button>
                     </div>
 
-                    <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            Date de Fin
-                        </label>
-                        <input type="datetime-local"
-                               name="end_date"
-                               id="end_date"
-                               value="{{ old('end_date', $contest->end_date?->format('Y-m-d\TH:i')) }}"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        @error('end_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de Début
+                            </label>
+                            <input type="datetime-local"
+                                   name="start_date"
+                                   id="start_date"
+                                   value="{{ old('start_date', $contest->start_date?->format('Y-m-d\TH:i')) }}"
+                                   onchange="calculateWeeks()"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('start_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de Fin
+                            </label>
+                            <input type="datetime-local"
+                                   name="end_date"
+                                   id="end_date"
+                                   value="{{ old('end_date', $contest->end_date?->format('Y-m-d\TH:i')) }}"
+                                   onchange="calculateWeeks()"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            @error('end_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div id="weeks-info" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800" style="display: none;">
+                        <strong>ℹ️ Information:</strong> <span id="weeks-text"></span>
                     </div>
                 </div>
 
@@ -157,4 +189,65 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function setDuration(days) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Ajuster pour timezone local
+
+    const startDate = document.getElementById('start_date');
+    const endDate = document.getElementById('end_date');
+
+    // Définir la date de début à maintenant
+    startDate.value = now.toISOString().slice(0, 16);
+
+    // Calculer la date de fin
+    const end = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+    endDate.value = end.toISOString().slice(0, 16);
+
+    calculateWeeks();
+}
+
+function calculateWeeks() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    const weeksInfo = document.getElementById('weeks-info');
+    const weeksText = document.getElementById('weeks-text');
+
+    if (!startDate || !endDate) {
+        weeksInfo.style.display = 'none';
+        return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end <= start) {
+        weeksInfo.style.display = 'none';
+        return;
+    }
+
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Calculer le nombre de semaines calendaires (Lundi-Dimanche)
+    const startOfWeek = new Date(start);
+    startOfWeek.setDate(start.getDate() - start.getDay() + (start.getDay() === 0 ? -6 : 1));
+
+    const endOfWeek = new Date(end);
+    endOfWeek.setDate(end.getDate() - end.getDay() + (end.getDay() === 0 ? 0 : 7));
+
+    const weeksDiff = Math.ceil((endOfWeek - startOfWeek) / (1000 * 60 * 60 * 24 * 7));
+
+    weeksText.textContent = `Le concours durera ${diffDays} jours sur ${weeksDiff} semaine(s) calendaire(s). Il y aura donc ${weeksDiff} sélection(s) de gagnants hebdomadaires.`;
+    weeksInfo.style.display = 'block';
+}
+
+// Calculer au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    calculateWeeks();
+});
+</script>
+@endpush
 @endsection

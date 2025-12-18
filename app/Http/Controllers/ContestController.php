@@ -20,9 +20,14 @@ class ContestController extends Controller
      */
     public function index()
     {
-        $contests = Contest::withCount(['questions', 'participants', 'winners'])
+        $contests = Contest::withCount(['questions', 'winners'])
             ->latest()
             ->paginate(10);
+
+        // Ajouter le count correct des participants pour chaque concours
+        $contests->each(function ($contest) {
+            $contest->unique_participants_count = $contest->countUniqueParticipants();
+        });
 
         return view('contests.index', compact('contests'));
     }
@@ -65,7 +70,7 @@ class ContestController extends Controller
         $contest->load(['questions', 'winners.participant']);
 
         $stats = [
-            'total_participants' => $contest->participants()->count(),
+            'total_participants' => $contest->countUniqueParticipants(),
             'total_responses' => $contest->responses()->count(),
             'completion_rate' => $this->calculateCompletionRate($contest),
             'average_score' => $this->calculateAverageScore($contest),
@@ -233,7 +238,7 @@ class ContestController extends Controller
             return 0;
         }
 
-        $participants = $contest->participants()->get();
+        $participants = $contest->getUniqueParticipants();
         if ($participants->isEmpty()) {
             return 0;
         }
@@ -250,7 +255,7 @@ class ContestController extends Controller
      */
     private function calculateAverageScore(Contest $contest): float
     {
-        $participants = $contest->participants()->get();
+        $participants = $contest->getUniqueParticipants();
 
         if ($participants->isEmpty()) {
             return 0;

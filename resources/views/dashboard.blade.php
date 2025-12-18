@@ -93,7 +93,7 @@
                                 <div>
                                     <h4 class="font-medium text-gray-900">{{ $contest->title }}</h4>
                                     <p class="text-sm text-gray-500 mt-1">
-                                        {{ $contest->questions_count }} questions • {{ $contest->participants_count }} participants
+                                        {{ $contest->questions_count }} questions • {{ $contest->unique_participants_count ?? $contest->participants_count ?? 0 }} participants
                                     </p>
                                 </div>
                                 <span class="px-3 py-1 text-xs font-medium rounded-full

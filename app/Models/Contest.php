@@ -49,6 +49,24 @@ class Contest extends Model
             ->distinct();
     }
 
+    // Obtenir les participants uniques (méthode correcte)
+    public function getUniqueParticipants()
+    {
+        $participantIds = $this->responses()
+            ->distinct()
+            ->pluck('participant_id');
+
+        return Participant::whereIn('id', $participantIds)->get();
+    }
+
+    // Compter les participants uniques
+    public function countUniqueParticipants(): int
+    {
+        return $this->responses()
+            ->distinct()
+            ->count('participant_id');
+    }
+
     // Calculer le score total d'un participant
     public function getParticipantScore($participantId): int
     {

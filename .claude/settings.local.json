@@ -8,7 +8,11 @@
       "Bash(python -m json.tool:*)",
       "Bash(php artisan serve:*)",
       "Bash(curl:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(php debug_stats.php:*)",
+      "Bash(php debug_weeks.php:*)",
+      "Bash(php fix_contest_dates.php:*)",
+      "Bash(php test_all_api.php:*)"
     ],
     "deny": [],
     "ask": []

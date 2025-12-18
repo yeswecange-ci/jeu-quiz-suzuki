@@ -55,7 +55,7 @@
                             {{ $contest->questions_count }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900">
-                            {{ $contest->participants_count }}
+                            {{ $contest->unique_participants_count ?? $contest->participants_count ?? 0 }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900">
                             {{ $contest->winners_count }}/{{ $contest->max_winners }}
