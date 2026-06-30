@@ -62,13 +62,13 @@ class Question extends Model
             return true;
         }
 
-        // Vérifier la date de début
-        if ($this->start_date && $date->lt($this->start_date)) {
+        // Vérifier la date de début (jour inclusif)
+        if ($this->start_date && $date->lt($this->start_date->copy()->startOfDay())) {
             return false;
         }
 
-        // Vérifier la date de fin
-        if ($this->end_date && $date->gt($this->end_date)) {
+        // Vérifier la date de fin (jour inclusif)
+        if ($this->end_date && $date->gt($this->end_date->copy()->endOfDay())) {
             return false;
         }
 
@@ -87,12 +87,12 @@ class Question extends Model
                     $q2->whereNull('start_date')->whereNull('end_date');
                 })
                 ->orWhere(function ($q2) use ($date) {
-                    // Cas 2: Dans la plage de dates
+                    // Cas 2: Dans la plage de dates (jour inclusif)
                     $q2->where(function ($q3) use ($date) {
-                        $q3->whereNull('start_date')->orWhere('start_date', '<=', $date);
+                        $q3->whereNull('start_date')->orWhereDate('start_date', '<=', $date);
                     })
                     ->where(function ($q3) use ($date) {
-                        $q3->whereNull('end_date')->orWhere('end_date', '>=', $date);
+                        $q3->whereNull('end_date')->orWhereDate('end_date', '>=', $date);
                     });
                 });
             });

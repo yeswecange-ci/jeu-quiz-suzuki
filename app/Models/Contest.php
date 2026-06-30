@@ -99,11 +99,13 @@ class Contest extends Model
 
         $now = now();
 
-        if ($this->start_date && $now->lt($this->start_date)) {
+        // Dates traitées en jour inclusif : un concours dont end_date est le
+        // 01/07 reste actif jusqu'au 01/07 23:59:59 (et non dès minuit).
+        if ($this->start_date && $now->lt($this->start_date->copy()->startOfDay())) {
             return false;
         }
 
-        if ($this->end_date && $now->gt($this->end_date)) {
+        if ($this->end_date && $now->gt($this->end_date->copy()->endOfDay())) {
             return false;
         }
 

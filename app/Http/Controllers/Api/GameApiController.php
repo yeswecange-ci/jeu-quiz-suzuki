@@ -375,10 +375,10 @@ class GameApiController extends Controller
 
         return Contest::where('status', 'active')
             ->where(function ($q) use ($now) {
-                $q->whereNull('start_date')->orWhere('start_date', '<=', $now);
+                $q->whereNull('start_date')->orWhereDate('start_date', '<=', $now);
             })
             ->where(function ($q) use ($now) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', $now);
+                $q->whereNull('end_date')->orWhereDate('end_date', '>=', $now);
             })
             ->orderByDesc('start_date')
             ->orderByDesc('id')
