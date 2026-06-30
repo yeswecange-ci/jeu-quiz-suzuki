@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('game')->group(function () {
+    // Prochaine question à poser (flow dynamique - aucune question en dur)
+    Route::post('/next-question', [GameApiController::class, 'nextQuestion']);
+
     // Soumettre une réponse depuis Twilio
     Route::post('/submit-answer', [GameApiController::class, 'submitAnswer']);
 

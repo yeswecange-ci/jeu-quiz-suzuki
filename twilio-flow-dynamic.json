@@ -1,0 +1,359 @@
+{
+  "description": "Quiz Suzuki CAN - Flow 100% dynamique (questions servies par l'API du concours actif)",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        { "event": "incomingMessage" },
+        { "event": "incomingCall" },
+        { "event": "incomingConversationMessage" },
+        { "event": "incomingRequest" },
+        { "next": "Global_variables", "event": "incomingParent" }
+      ],
+      "properties": { "offset": { "x": 0, "y": -370 } }
+    },
+    {
+      "name": "Global_variables",
+      "type": "set-variables",
+      "transitions": [
+        { "next": "welcome_message", "event": "next" }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "type": "string",
+            "value": "https://quiz-suzuki-can.ywcdigital.com/api/game",
+            "key": "api_base_url"
+          }
+        ],
+        "offset": { "x": 190, "y": -120 }
+      }
+    },
+    {
+      "name": "welcome_message",
+      "type": "send-message",
+      "transitions": [
+        { "next": "ready_question", "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": 60, "y": 120 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "👋 Bienvenue au jeu Scan & Gagne \nÀ vous de jouer ! \n\nRépondez à la question et tentez de remporter de nombreux cadeaux. Bonne chance ! ⚽🚗🎁"
+      }
+    },
+    {
+      "name": "ready_question",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        { "next": "split_ready_question", "event": "incomingMessage" },
+        { "next": "ready_question_no_reply", "event": "timeout" },
+        { "event": "deliveryFailure" }
+      ],
+      "properties": {
+        "offset": { "x": 220, "y": 380 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "body": "Avant de commencer, es-tu prêt ?\n\n 👉 Réponds simplement \"Oui\" ou \"Non\".",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "split_ready_question",
+      "type": "split-based-on",
+      "transitions": [
+        { "next": "ready_question_no_match", "event": "noMatch" },
+        {
+          "next": "fetch_next_question",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains oui",
+              "arguments": ["{{widgets.ready_question.inbound.Body}}"],
+              "type": "contains",
+              "value": "oui"
+            }
+          ]
+        },
+        {
+          "next": "ready_question_no",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains non",
+              "arguments": ["{{widgets.ready_question.inbound.Body}}"],
+              "type": "contains",
+              "value": "non"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.ready_question.inbound.Body}}",
+        "offset": { "x": -230, "y": 700 }
+      }
+    },
+    {
+      "name": "ready_question_no_reply",
+      "type": "send-message",
+      "transitions": [
+        { "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": 450, "y": 690 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "Je n'ai pas reçu de réponse 🤔\n\n Quand tu seras prêt, réponds simplement \"Oui\" ou \"Non\" pour continuer."
+      }
+    },
+    {
+      "name": "ready_question_no",
+      "type": "send-message",
+      "transitions": [
+        { "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": 150, "y": 950 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "D'accord 👍\n Tu peux revenir à tout moment quand tu seras prêt.😊"
+      }
+    },
+    {
+      "name": "ready_question_no_match",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        { "next": "split_ready_question_no_match", "event": "incomingMessage" },
+        { "next": "ready_question_no_reply", "event": "timeout" },
+        { "event": "deliveryFailure" }
+      ],
+      "properties": {
+        "offset": { "x": -1100, "y": 590 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "body": "🤔 Je n'ai pas bien compris ta réponse. \nTu dois répondre Oui ou Non.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "split_ready_question_no_match",
+      "type": "split-based-on",
+      "transitions": [
+        { "next": "ready_question_no_match", "event": "noMatch" },
+        {
+          "next": "fetch_next_question",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains oui",
+              "arguments": ["{{widgets.ready_question_no_match.inbound.Body}}"],
+              "type": "contains",
+              "value": "oui"
+            }
+          ]
+        },
+        {
+          "next": "ready_question_no",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains non",
+              "arguments": ["{{widgets.ready_question_no_match.inbound.Body}}"],
+              "type": "contains",
+              "value": "non"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.ready_question_no_match.inbound.Body}}",
+        "offset": { "x": -1130, "y": 860 }
+      }
+    },
+    {
+      "name": "fetch_next_question",
+      "type": "make-http-request",
+      "transitions": [
+        { "next": "split_completed", "event": "success" },
+        { "next": "fetch_failed", "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": -230, "y": 1080 },
+        "method": "POST",
+        "content_type": "application/json;charset=utf-8",
+        "add_twilio_auth": false,
+        "body": "{\n  \"whatsapp_number\": \"{{contact.channel.address}}\",\n  \"profile_name\": \"{{contact.channel.user_info.user_name}}\",\n  \"conversation_sid\": \"{{trigger.message.ConversationSid}}\"\n}",
+        "url": "{{flow.variables.api_base_url}}/next-question"
+      }
+    },
+    {
+      "name": "fetch_failed",
+      "type": "send-message",
+      "transitions": [
+        { "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": 250, "y": 1080 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "😬 Oups, un petit souci technique. Réécris-moi un message dans quelques instants pour reprendre le jeu. 🙏"
+      }
+    },
+    {
+      "name": "split_completed",
+      "type": "split-based-on",
+      "transitions": [
+        { "next": "ask_question", "event": "noMatch" },
+        {
+          "next": "final_message",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If completed is true",
+              "arguments": ["{{widgets.fetch_next_question.parsed.completed}}"],
+              "type": "equal_to",
+              "value": "true"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.fetch_next_question.parsed.completed}}",
+        "offset": { "x": -230, "y": 1340 }
+      }
+    },
+    {
+      "name": "ask_question",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        { "next": "submit_answer", "event": "incomingMessage" },
+        { "next": "timeout_question", "event": "timeout" },
+        { "event": "deliveryFailure" }
+      ],
+      "properties": {
+        "offset": { "x": -500, "y": 1600 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "body": "{{widgets.fetch_next_question.parsed.data.message}}",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "timeout_question",
+      "type": "send-message",
+      "transitions": [
+        { "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": -900, "y": 1600 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "⏱️ Temps écoulé. Le jeu s'est arrêté faute de réponse.\n\nPas de souci, tu peux relancer une partie quand tu veux en nous réécrivant ! 😊"
+      }
+    },
+    {
+      "name": "submit_answer",
+      "type": "make-http-request",
+      "transitions": [
+        { "next": "split_accepted", "event": "success" },
+        { "next": "fetch_next_question", "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": -500, "y": 1860 },
+        "method": "POST",
+        "content_type": "application/json;charset=utf-8",
+        "add_twilio_auth": false,
+        "body": "{\n  \"contest_id\": \"{{widgets.fetch_next_question.parsed.data.contest_id}}\",\n  \"whatsapp_number\": \"{{contact.channel.address}}\",\n  \"question_id\": \"{{widgets.fetch_next_question.parsed.data.question_id}}\",\n  \"answer\": \"{{widgets.ask_question.inbound.Body}}\",\n  \"conversation_sid\": \"{{trigger.message.ConversationSid}}\",\n  \"profile_name\": \"{{contact.channel.user_info.user_name}}\"\n}",
+        "url": "{{flow.variables.api_base_url}}/submit-answer"
+      }
+    },
+    {
+      "name": "split_accepted",
+      "type": "split-based-on",
+      "transitions": [
+        { "next": "invalid_answer", "event": "noMatch" },
+        {
+          "next": "fetch_next_question",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If accepted is true",
+              "arguments": ["{{widgets.submit_answer.parsed.accepted}}"],
+              "type": "equal_to",
+              "value": "true"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.submit_answer.parsed.accepted}}",
+        "offset": { "x": -500, "y": 2120 }
+      }
+    },
+    {
+      "name": "invalid_answer",
+      "type": "send-message",
+      "transitions": [
+        { "next": "ask_question", "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": -1000, "y": 2120 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "🤔 Réponse non reconnue.\nRéponds simplement avec le numéro de ton choix.\n\nJe te repose la question 👇"
+      }
+    },
+    {
+      "name": "final_message",
+      "type": "send-message",
+      "transitions": [
+        { "event": "sent" },
+        { "event": "failed" }
+      ],
+      "properties": {
+        "offset": { "x": 0, "y": 1600 },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "message_type": "custom",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.fetch_next_question.parsed.data.message}}"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
