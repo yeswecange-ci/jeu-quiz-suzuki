@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ContestController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\QuestionController;
@@ -34,6 +35,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('contests.notify-week-winners');
     Route::get('/contests/{contest}/week/{weekNumber}', [ContestController::class, 'showWeekLeaderboard'])
         ->name('contests.week-leaderboard');
+
+    // Exports CSV / PDF
+    Route::get('/contests/{contest}/export/participants/{format}', [ExportController::class, 'participants'])
+        ->where('format', 'csv|pdf')
+        ->name('contests.export.participants');
+    Route::get('/contests/{contest}/export/winners/{format}', [ExportController::class, 'winners'])
+        ->where('format', 'csv|pdf')
+        ->name('contests.export.winners');
+    Route::get('/contests/{contest}/week/{weekNumber}/export/{format}', [ExportController::class, 'weekWinners'])
+        ->where('format', 'csv|pdf')
+        ->name('contests.export.week-winners');
 
     // Anciennes routes (pour compatibilité)
     Route::post('/contests/{contest}/select-winners', [ContestController::class, 'selectWinners'])

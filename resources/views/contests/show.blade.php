@@ -86,16 +86,26 @@
     <!-- Gestion des Gagnants par Semaine -->
     @if($weeks->isNotEmpty())
         <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <h3 class="text-lg font-semibold text-gray-900">Gagnants par Semaine</h3>
-                <form action="{{ route('contests.select-all-week-winners', $contest) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit"
-                            onclick="return confirm('Sélectionner les gagnants pour toutes les semaines passées ?')"
-                            class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm">
-                        🏆 Sélectionner Toutes les Semaines Passées
-                    </button>
-                </form>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <a href="{{ route('contests.export.winners', [$contest, 'csv']) }}"
+                       class="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-sm">
+                        ⬇️ Gagnants CSV
+                    </a>
+                    <a href="{{ route('contests.export.winners', [$contest, 'pdf']) }}"
+                       class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+                        📄 Gagnants PDF
+                    </a>
+                    <form action="{{ route('contests.select-all-week-winners', $contest) }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit"
+                                onclick="return confirm('Sélectionner les gagnants pour toutes les semaines passées ?')"
+                                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm">
+                            🏆 Sélectionner Toutes les Semaines Passées
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div class="space-y-4">
@@ -203,9 +213,21 @@
 
     <!-- Classement Général (toutes semaines confondues) -->
     <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Classement Général</h3>
-            <p class="text-sm text-gray-500">Toutes semaines confondues</p>
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-wrap gap-3">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Classement Général</h3>
+                <p class="text-sm text-gray-500">Toutes semaines confondues</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <a href="{{ route('contests.export.participants', [$contest, 'csv']) }}"
+                   class="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-sm">
+                    ⬇️ Participants CSV
+                </a>
+                <a href="{{ route('contests.export.participants', [$contest, 'pdf']) }}"
+                   class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+                    📄 Participants PDF
+                </a>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">

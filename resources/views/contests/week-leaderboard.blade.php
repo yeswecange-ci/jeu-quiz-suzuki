@@ -4,10 +4,20 @@
 @section('page-title', $contest->title . ' - Semaine ' . $week['number'])
 
 @section('header-actions')
-    <a href="{{ route('contests.show', $contest) }}"
-       class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-        ← Retour au Concours
-    </a>
+    <div class="flex items-center gap-2 flex-wrap">
+        <a href="{{ route('contests.export.week-winners', [$contest, $week['number'], 'csv']) }}"
+           class="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition text-sm">
+            ⬇️ Gagnants CSV
+        </a>
+        <a href="{{ route('contests.export.week-winners', [$contest, $week['number'], 'pdf']) }}"
+           class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm">
+            📄 Gagnants PDF
+        </a>
+        <a href="{{ route('contests.show', $contest) }}"
+           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            ← Retour au Concours
+        </a>
+    </div>
 @endsection
 
 @section('content')
